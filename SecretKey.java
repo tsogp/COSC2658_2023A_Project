@@ -1,12 +1,10 @@
-package project;
-
 public class SecretKey {
     private String correctKey;
     private int counter;
 
     public SecretKey() {
         // for the real test, your program will not know this
-        correctKey = "IIIIIIIRMTTTTTTT";
+        correctKey = "RRRRRRRRRMITRMIT";
         counter = 0;
     }
 
