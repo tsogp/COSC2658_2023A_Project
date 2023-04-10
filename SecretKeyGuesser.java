@@ -32,12 +32,40 @@ public class SecretKeyGuesser {
                 return;
             }
 
-            int largest_occ = 0;
-            for(int i = 1; i<=3;i++){
+
+            int largest_occ = 0, sec_occ = 0, min = 100 , sec_min = 100;
+
+            if(occ[0]>= occ[1]){
+                largest_occ = 0;
+                sec_occ = 1;
+                sec_min = 0;
+                min = 1;
+            }else{
+                largest_occ = 1;
+                sec_occ = 0;
+                sec_min = 1;
+                min = 0;
+            }
+
+
+
+            for(int i = 2; i<=3;i++){
+                if(occ[i] < occ[min]){
+                    sec_min = min;
+                    min = i;
+                } else if (occ[i] < occ[sec_min]) {
+                    sec_min = i;
+                }
+
                 if(occ[i] >= occ[largest_occ]){
+                    sec_occ = largest_occ;
                     largest_occ = i;
+                } else if (occ[i] >= occ[sec_occ]) {
+                    sec_occ = i;
                 }
             }
+
+
 
             if(largest_occ == 0){
                 str = "RRRRRRRRRRRRRRRR";
@@ -51,30 +79,82 @@ public class SecretKeyGuesser {
 
             corrected = occ[largest_occ];
 
-            for (int i = 0; i < 4; i ++){
-                if(i == largest_occ){
-                    continue;
-                }
+//            for (int i = 0; i < 4; i ++){
+//                if(i == largest_occ){
+//                    continue;
+//                }
+//
+//                for(int j = 1; j <= occ[i]; j++){
+//                    for(int k = 15; k >=0; k-- ){
+//                        char[] curr = str.toCharArray();
+//                        if(curr[k] != charOf(largest_occ)){
+//                            continue;
+//                        }
+//                        curr[k] = charOf(i);
+//                        int temp = key.guess(String.valueOf(curr));
+//                        if(temp > corrected){
+//                            str = String.valueOf(curr);
+//                            corrected = temp;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
 
-                for(int j = 1; j <= occ[i]; j++){
-                    for(int k = 15; k >=0; k-- ){
-                        char[] curr = str.toCharArray();
-                        if(curr[k] != charOf(largest_occ)){
-                            continue;
-                        }
-                        curr[k] = charOf(i);
-                        int temp = key.guess(String.valueOf(curr));
-                        if(temp > corrected){
-                            str = String.valueOf(curr);
-                            corrected = temp;
-                            break;
-                        }
+            //new modified approach
+            int[] tmp_arr = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+            for(int j = 1; j <= occ[sec_min]; j++){
+                for(int k = 15; k >=0; k-- ){
+                    char[] curr = str.toCharArray();
+                    if(curr[k] != charOf(largest_occ) || tmp_arr[k] != 0){
+                        continue;
+                    }
+                    curr[k] = charOf(sec_min);
+                    int temp = key.guess(String.valueOf(curr));
+                    if(temp > corrected){
+                        str = String.valueOf(curr);
+                        corrected = temp;
+                        break;
+                    }else if(temp < corrected){
+                        tmp_arr[k] = 1;
+                    }else {
+                        tmp_arr[k] = 2;
                     }
                 }
             }
 
-        }
+            //for(int j = 1; j <= occ[min]; j ++){
+                for(int k = 15; k >=0; k-- ){
+                    char[] curr = str.toCharArray();
+                    if(curr[k] != charOf(largest_occ) || tmp_arr[k] == 1){
+                        continue;
+                    }
+                    curr[k] = charOf(min);
+                    int temp = key.guess(String.valueOf(curr));
+                    if(temp > corrected){
+                        str = String.valueOf(curr);
+                        corrected = temp;
+                        if(corrected == 16){
+                            System.out.println("I found the secret key. It is " + str);
+                            return;
+                        }
+//                        if(j != occ[min]){
+//                            break;
+//                        }
+                    }else if(temp < corrected){
+                        tmp_arr[k] = 1;
+                    } else if (temp == corrected) {
+                        curr[k] = charOf(sec_occ);
+                        str = String.valueOf(curr);
+                        corrected++;
+                    }
+                }
+            //}
 
+        }
+        key.guess(str);
+        //System.out.println("Number of guesses: " + key.counter);
         System.out.println("I found the secret key. It is " + str);
     }
 
