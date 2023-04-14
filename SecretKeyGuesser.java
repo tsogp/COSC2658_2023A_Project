@@ -58,6 +58,7 @@ public class SecretKeyGuesser {
         }
         return 'T';
     }
+
     static int order(char c) {
         if (c == 'R') {
             return 0;
@@ -68,6 +69,7 @@ public class SecretKeyGuesser {
         }
         return 3;
     }
+
     public static int[] getPositionOfCharacter(StringBuilder guessedKey, SecretKey key, int[] numberOfEachKey, char character) {
         int[] position = new int[16];
         char tmp = guessedKey.charAt(0);
