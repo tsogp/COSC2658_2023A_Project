@@ -58,13 +58,22 @@ public class SecretKeyGuesser {
         }
         return 'T';
     }
-
+    static int order(char c) {
+        if (c == 'R') {
+            return 0;
+        } else if (c == 'M') {
+            return 1;
+        } else if (c == 'I') {
+            return 2;
+        }
+        return 3;
+    }
     public static int[] getPositionOfCharacter(StringBuilder guessedKey, SecretKey key, int[] numberOfEachKey, char character) {
         int[] position = new int[16];
         char tmp = guessedKey.charAt(0);
         for (int i = 0; i < guessedKey.length(); i++) {
             guessedKey.setCharAt(i, character);
-            if (key.guess(String.valueOf(guessedKey)) > numberOfEachKey[3]) {
+            if (key.guess(String.valueOf(guessedKey)) > numberOfEachKey[order(tmp)]) {
                 position[i]++;
             }
             guessedKey.setCharAt(i, tmp);

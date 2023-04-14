@@ -4,7 +4,7 @@ public class SecretKey {
 
     public SecretKey() {
         // for the real test, your program will not know this
-        correctKey = "RITMMTTIRRRRMTTI";
+        correctKey = "TTTIIMMIITRIRTRR";
         counter = 0;
     }
 
