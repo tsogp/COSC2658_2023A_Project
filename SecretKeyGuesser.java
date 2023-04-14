@@ -26,12 +26,14 @@ public class SecretKeyGuesser {
                 key.guess(possibleValues[3].repeat(16))
         };
 
+        // Get the position of each key
         int[][] positionOfEachKey = new int[4][4];
         positionOfEachKey[0] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'R');
         positionOfEachKey[1] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'M');
         positionOfEachKey[2] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'I');
         positionOfEachKey[3] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyR, key, numberOfEachKey, 'T');
 
+        // Assign to a new String according to the index found above
         char[] guessedKey = new char[16];
         for (int i = 0; i < positionOfEachKey.length; i++) {
             for (int j = 0; j < positionOfEachKey[i].length; j++) {
@@ -40,9 +42,9 @@ public class SecretKeyGuesser {
                 }
             }
         }
-        String s = new String(guessedKey);
-        if (key.guess(s) == 16) {
-            System.out.println("The string is: " + s);
+
+        if (key.guess(new String(guessedKey)) == 16) {
+            System.out.println("The string is: " + new String(guessedKey));
         }
     }
 
