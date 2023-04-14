@@ -4,107 +4,46 @@ public class SecretKeyGuesser {
         // create a new secret key object
         SecretKey key = new SecretKey();
 
-        // guessed key
-        String str = "RRRRRRRRRRRRRRRR";
+        // arrays of possible values {R, M, I, T}
+        String[] possibleValues = new String[]{"R", "M", "I", "T"};
 
-        // number of correct characters
-        int corrected = 0;
-
-        // Validate and update the guessed key
-        while (corrected != 16) {
-            int[] occ = new int[4];
-
-            // occ[0] = 10
-            occ[0] = corrected = key.guess("RRRRRRRRRRRRRRRR");
-            if (corrected == 16) {
-                System.out.println("I found the secret key. It is RRRRRRRRRRRRRRRR");
+        // guessed
+        StringBuilder guessedKeyR = new StringBuilder(possibleValues[0].repeat(16));
+        StringBuilder guessedKeyT = new StringBuilder(possibleValues[3].repeat(16));
+        // check if the secret key contains only one key
+        for (String i : possibleValues) {
+            if (key.guess(i.repeat(16)) == 16) {
+                System.out.println("I found the secret key. It is " + i.repeat(16));
                 return;
             }
-
-            // occ[1] = 2
-            occ[1] = corrected = key.guess("MMMMMMMMMMMMMMMM");
-            if (corrected == 16) {
-                System.out.println("I found the secret key. It is MMMMMMMMMMMMMMMM");
-                return;
-            }
-
-            // occ[2] = 2
-            occ[2] = corrected = key.guess("IIIIIIIIIIIIIIII");
-            if (corrected == 16) {
-                System.out.println("I found the secret key. It is IIIIIIIIIIIIIIII");
-                return;
-            }
-
-            // occ[3] = 2
-            occ[3] = corrected = key.guess("TTTTTTTTTTTTTTTT");
-            if (corrected == 16) {
-                System.out.println("I found the secret key. It is TTTTTTTTTTTTTTTT");
-                return;
-            }
-
-            int largest_occ = 0;
-            for (int i = 1; i <= 3; i++) {
-                if (occ[i] >= occ[largest_occ]) {
-                    largest_occ = i;
-                }
-            }
-
-            // largest_occ = 0;
-            if (largest_occ == 0) {
-                str = "RRRRRRRRRRRRRRRR";
-            } else if (largest_occ == 1) {
-                str = "MMMMMMMMMMMMMMMM";
-            } else if (largest_occ == 2) {
-                str = "IIIIIIIIIIIIIIII";
-            } else {
-                str = "TTTTTTTTTTTTTTTT";
-            }
-
-            // str = "RRRRRRRRRRRRRRRR"
-
-            // corrected = 10;
-            corrected = occ[largest_occ];
-
-            for (int i = 0; i < 4; i++) {
-                if (i == largest_occ) {
-                    continue;
-                }
-
-                // i == 1;
-                // j = 1; j <= 10; j++;
-                for (int j = 1; j <= occ[i]; j++) {
-                    for (int k = 15; k >= 0; k--) {
-                        // curr = [R,R,R,R,R,R,R,...]
-                        char[] curr = str.toCharArray();
-                        if (curr[k] != charOf(largest_occ)) {
-                            continue;
-                        }
-                        // k == 15
-                        curr[k] = charOf(i);
-                        int temp = key.guess(String.valueOf(curr));
-                        if (temp > corrected) {
-                            str = String.valueOf(curr);
-                            corrected = temp;
-                            break;
-                        }
-                    }
-                }
-            }
-
         }
 
-        System.out.println("I found the secret key. It is " + str);
-    }
+        // count the number of each key in the secret key
+        int[] numberOfEachKey = {
+                key.guess(possibleValues[0].repeat(16)),
+                key.guess(possibleValues[1].repeat(16)),
+                key.guess(possibleValues[2].repeat(16)),
+                key.guess(possibleValues[3].repeat(16))
+        };
 
-    static int order(char c) {
-        if (c == 'R') {
-            return 0;
-        } else if (c == 'M') {
-            return 1;
-        } else if (c == 'I') {
-            return 2;
+        int[][] positionOfEachKey = new int[4][4];
+        positionOfEachKey[0] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'R');
+        positionOfEachKey[1] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'M');
+        positionOfEachKey[2] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyT, key, numberOfEachKey, 'I');
+        positionOfEachKey[3] = SecretKeyGuesser.getPositionOfCharacter(guessedKeyR, key, numberOfEachKey, 'T');
+
+        char[] guessedKey = new char[16];
+        for (int i = 0; i < positionOfEachKey.length; i++) {
+            for (int j = 0; j < positionOfEachKey[i].length; j++) {
+                if (positionOfEachKey[i][j] == 1) {
+                    guessedKey[j] = charOf(i);
+                }
+            }
         }
-        return 3;
+        String s = new String(guessedKey);
+        if (key.guess(s) == 16) {
+            System.out.println("The string is: " + s);
+        }
     }
 
     static char charOf(int order) {
@@ -118,18 +57,16 @@ public class SecretKeyGuesser {
         return 'T';
     }
 
-    // return the next value in 'RMIT' order, that is
-    // R < M < I < T
-    public String next(String current) {
-        char[] curr = current.toCharArray();
-        for (int i = curr.length - 1; i >= 0; i--) {
-            if (order(curr[i]) < 3) {
-                // increase this one and stop
-                curr[i] = charOf(order(curr[i]) + 1);
-                break;
+    public static int[] getPositionOfCharacter(StringBuilder guessedKey, SecretKey key, int[] numberOfEachKey, char character) {
+        int[] position = new int[16];
+        char tmp = guessedKey.charAt(0);
+        for (int i = 0; i < guessedKey.length(); i++) {
+            guessedKey.setCharAt(i, character);
+            if (key.guess(String.valueOf(guessedKey)) > numberOfEachKey[3]) {
+                position[i]++;
             }
-            curr[i] = 'R';
+            guessedKey.setCharAt(i, tmp);
         }
-        return String.valueOf(curr);
+        return position;
     }
 }
