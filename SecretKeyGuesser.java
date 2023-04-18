@@ -1,145 +1,151 @@
-package project;
-
 public class SecretKeyGuesser {
-    private SecretKey key;
+
+    // Generate new SecretKey object to access the guess() method
+    // As we are not allowed to modify the SecretKey class's object -> we marked it as final
+    private final SecretKey key;
     private String str;
+
+    // Number of corrected key
     private int corrected = 0;
-    private int[] occ;
 
-    private boolean isFound() {
-        return this.corrected == 16;
-    }
-    private void foundKey(String key) {
-        System.out.println("I found the secret key. It is " + key);
-    }
+    // The number of occurrentence of each key
+    private final int[] occurrentence;
 
+    // Constructor
     public SecretKeyGuesser() {
         this.key = new SecretKey();
-        this.str = "RRRRRRRRRRRRRRRR";
-        this.occ = new int[4];
+        this.str = "R".repeat(16);
+        this.occurrentence = new int[4];
 
-        final String[] basicKeys = {"RRRRRRRRRRRRRRRR", "MMMMMMMMMMMMMMMM", "IIIIIIIIIIIIIIII", "TTTTTTTTTTTTTTTT"};
+        // Create an array of string where each index will be a key repeating 16 times
+        final String[] basicKeys = {"R".repeat(16), "M".repeat(16), "I".repeat(16), "T".repeat(16)};
+
         for (int i = 0; i < 4; i++) {
-            occ[i] = key.guess(basicKeys[i]);
-            if (occ[i] == 16) {
-                foundKey(basicKeys[i]);
+            occurrentence[i] = key.guess(basicKeys[i]);
+
+            // Return true if the key is in 'basicKeys'
+            if (occurrentence[i] == 16) {
+                secretKey(basicKeys[i]);
                 return;
             }
 
-            if (occ[i] > corrected) {
-                corrected = occ[i];
+            // Find the most occurrentence
+            if (occurrentence[i] > corrected) {
+                corrected = occurrentence[i];
             }
         }
     }
 
+    // Return true if the key is found
+    private boolean isFound() {
+        return this.corrected == 16;
+    }
+
+    // Print out the secret key
+    private void secretKey(String key) {
+        System.out.println("I found the secret key. It is " + key);
+    }
+
     public void start() {
-        int largest_occ = 0, sec_occ = 0, min = 100, sec_min = 100;
-        if (occ[0]>= occ[1])  {
-            largest_occ = 0;
-            sec_occ = 1;
-            sec_min = 0;
-            min = 1;
+
+        // Find the key with largest, 2nd largest, least and 2nd least occurrentence
+        int mostOccurrentence, secondOccurrentence, thirdOccurrentence, leastOccurrentence;
+        if (occurrentence[0] >= occurrentence[1]) {
+            mostOccurrentence = 0;
+            secondOccurrentence = 1;
+            thirdOccurrentence = 0;
+            leastOccurrentence = 1;
         } else {
-            largest_occ = 1;
-            sec_occ = 0;
-            sec_min = 1;
-            min = 0;
+            mostOccurrentence = 1;
+            secondOccurrentence = 0;
+            thirdOccurrentence = 1;
+            leastOccurrentence = 0;
         }
 
-        for(int i = 2; i<=3;i++){
-            if(occ[i] < occ[min]){
-                sec_min = min;
-                min = i;
-            } else if (occ[i] < occ[sec_min]) {
-                sec_min = i;
+        // find max and second max algorithm
+        for (int i = 2; i <= 3; i++) {
+            if (occurrentence[i] < occurrentence[leastOccurrentence]) {
+                thirdOccurrentence = leastOccurrentence;
+                leastOccurrentence = i;
+            } else if (occurrentence[i] < occurrentence[thirdOccurrentence]) {
+                thirdOccurrentence = i;
             }
 
-            if(occ[i] >= occ[largest_occ]){
-                sec_occ = largest_occ;
-                largest_occ = i;
-            } else if (occ[i] >= occ[sec_occ]) {
-                sec_occ = i;
+            if (occurrentence[i] >= occurrentence[mostOccurrentence]) {
+                secondOccurrentence = mostOccurrentence;
+                mostOccurrentence = i;
+            } else if (occurrentence[i] >= occurrentence[secondOccurrentence]) {
+                secondOccurrentence = i;
             }
         }
 
-        if (largest_occ == 0){
-            str = "RRRRRRRRRRRRRRRR";
-        } else if (largest_occ == 1) {
-            str = "MMMMMMMMMMMMMMMM";
-        } else if (largest_occ == 2) {
-            str = "IIIIIIIIIIIIIIII";
+        if (mostOccurrentence == 0) {
+            str = "R".repeat(16);
+        } else if (mostOccurrentence == 1) {
+            str = "M".repeat(16);
+        } else if (mostOccurrentence == 2) {
+            str = "I".repeat(16);
         } else {
-            str = "TTTTTTTTTTTTTTTT";
+            str = "T".repeat(16);
         }
 
-        int firstIndex = (corrected == 15) ? sec_occ : sec_min;
+        int firstIndex = (corrected == 15) ? secondOccurrentence : thirdOccurrentence;
         // new modified approach
-        int[] tmp_arr = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        int[] tmpArr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        for (int j = 1; j <= occ[firstIndex]; j++) {
+        for (int j = 1; j <= occurrentence[firstIndex]; j++) {
             for (int k = 15; k >= 0; k--) {
-                char[] curr = str.toCharArray();
-                if (curr[k] != charOf(largest_occ) || tmp_arr[k] != 0){
+                char[] current = str.toCharArray();
+                if (current[k] != charOf(mostOccurrentence) || tmpArr[k] != 0) {
                     continue;
                 }
 
-                curr[k] = charOf(firstIndex);
-                int temp = key.guess(String.valueOf(curr));
-                if (temp > corrected){
-                    str = String.valueOf(curr);
+                current[k] = charOf(firstIndex);
+                int temp = key.guess(String.valueOf(current));
+                if (temp > corrected) {
+                    str = String.valueOf(current);
                     corrected = temp;
 
                     if (isFound()) {
-                        foundKey(str);
+                        secretKey(str);
                         return;
                     }
                     break;
-                } else if (temp < corrected){
-                    tmp_arr[k] = 1;
+                } else if (temp < corrected) {
+                    tmpArr[k] = 1;
                 } else {
-                    tmp_arr[k] = 2;
+                    tmpArr[k] = 2;
                 }
             }
         }
 
         for (int k = 15; k >= 0; k--) {
-            char[] curr = str.toCharArray();
-            if (curr[k] != charOf(largest_occ) || tmp_arr[k] == 1){
+            char[] current = str.toCharArray();
+            if (current[k] != charOf(mostOccurrentence) || tmpArr[k] == 1) {
                 continue;
             }
 
-            curr[k] = charOf(min);
-            int temp = key.guess(String.valueOf(curr));
-            if (temp > corrected){
-                str = String.valueOf(curr);
+            current[k] = charOf(leastOccurrentence);
+            int temp = key.guess(String.valueOf(current));
+            if (temp > corrected) {
+                str = String.valueOf(current);
                 corrected = temp;
 
                 if (isFound()) {
-                    foundKey(str);
+                    secretKey(str);
                     return;
                 }
-            } else if(temp < corrected){
-                tmp_arr[k] = 1;
-            } else if (temp == corrected) {
-                curr[k] = charOf(sec_occ);
-                str = String.valueOf(curr);
+            } else if (temp < corrected) {
+                tmpArr[k] = 1;
+            } else {
+                current[k] = charOf(secondOccurrentence);
+                str = String.valueOf(current);
                 corrected++;
             }
         }
 
         key.guess(str);
-        foundKey(str);
-    }
-
-    static int order(char c) {
-        if (c == 'R') {
-            return 0;
-        } else if (c == 'M') {
-            return 1;
-        } else if (c == 'I') {
-            return 2;
-        }
-        return 3;
+        secretKey(str);
     }
 
     static char charOf(int order) {
