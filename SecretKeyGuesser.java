@@ -8,30 +8,30 @@ public class SecretKeyGuesser {
     // Number of corrected key
     private int corrected = 0;
 
-    // The number of occurrentence of each key
-    private final int[] occurrentence;
+    // The number of occurrence of each key
+    private final int[] occurrence;
 
     // Constructor
     public SecretKeyGuesser() {
         this.key = new SecretKey();
         this.str = "R".repeat(16);
-        this.occurrentence = new int[4];
+        this.occurrence = new int[4];
 
         // Create an array of string where each index will be a key repeating 16 times
         final String[] basicKeys = {"R".repeat(16), "M".repeat(16), "I".repeat(16), "T".repeat(16)};
 
         for (int i = 0; i < 4; i++) {
-            occurrentence[i] = key.guess(basicKeys[i]);
+            occurrence[i] = key.guess(basicKeys[i]);
 
             // Return true if the key is in 'basicKeys'
-            if (occurrentence[i] == 16) {
+            if (occurrence[i] == 16) {
                 secretKey(basicKeys[i]);
                 return;
             }
 
-            // Find the most occurrentence
-            if (occurrentence[i] > corrected) {
-                corrected = occurrentence[i];
+            // Find the most occurrence
+            if (occurrence[i] > corrected) {
+                corrected = occurrence[i];
             }
         }
     }
@@ -48,55 +48,55 @@ public class SecretKeyGuesser {
 
     public void start() {
 
-        // Find the key with largest, 2nd largest, least and 2nd least occurrentence
-        int mostOccurrentence, secondOccurrentence, thirdOccurrentence, leastOccurrentence;
-        if (occurrentence[0] >= occurrentence[1]) {
-            mostOccurrentence = 0;
-            secondOccurrentence = 1;
-            thirdOccurrentence = 0;
-            leastOccurrentence = 1;
+        // Find the key with largest, 2nd largest, least and 2nd least occurrence
+        int mostOccurrence, secondOccurrence, thirdOccurrence, leastOccurrence;
+        if (occurrence[0] >= occurrence[1]) {
+            mostOccurrence = 0;
+            secondOccurrence = 1;
+            thirdOccurrence = 0;
+            leastOccurrence = 1;
         } else {
-            mostOccurrentence = 1;
-            secondOccurrentence = 0;
-            thirdOccurrentence = 1;
-            leastOccurrentence = 0;
+            mostOccurrence = 1;
+            secondOccurrence = 0;
+            thirdOccurrence = 1;
+            leastOccurrence = 0;
         }
 
         // find max and second max algorithm
         for (int i = 2; i <= 3; i++) {
-            if (occurrentence[i] < occurrentence[leastOccurrentence]) {
-                thirdOccurrentence = leastOccurrentence;
-                leastOccurrentence = i;
-            } else if (occurrentence[i] < occurrentence[thirdOccurrentence]) {
-                thirdOccurrentence = i;
+            if (occurrence[i] < occurrence[leastOccurrence]) {
+                thirdOccurrence = leastOccurrence;
+                leastOccurrence = i;
+            } else if (occurrence[i] < occurrence[thirdOccurrence]) {
+                thirdOccurrence = i;
             }
 
-            if (occurrentence[i] >= occurrentence[mostOccurrentence]) {
-                secondOccurrentence = mostOccurrentence;
-                mostOccurrentence = i;
-            } else if (occurrentence[i] >= occurrentence[secondOccurrentence]) {
-                secondOccurrentence = i;
+            if (occurrence[i] >= occurrence[mostOccurrence]) {
+                secondOccurrence = mostOccurrence;
+                mostOccurrence = i;
+            } else if (occurrence[i] >= occurrence[secondOccurrence]) {
+                secondOccurrence = i;
             }
         }
 
-        if (mostOccurrentence == 0) {
+        if (mostOccurrence == 0) {
             str = "R".repeat(16);
-        } else if (mostOccurrentence == 1) {
+        } else if (mostOccurrence == 1) {
             str = "M".repeat(16);
-        } else if (mostOccurrentence == 2) {
+        } else if (mostOccurrence == 2) {
             str = "I".repeat(16);
         } else {
             str = "T".repeat(16);
         }
 
-        int firstIndex = (corrected == 15) ? secondOccurrentence : thirdOccurrentence;
+        int firstIndex = (corrected == 15) ? secondOccurrence : thirdOccurrence;
         // new modified approach
         int[] tmpArr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        for (int j = 1; j <= occurrentence[firstIndex]; j++) {
+        for (int j = 1; j <= occurrence[firstIndex]; j++) {
             for (int k = 15; k >= 0; k--) {
                 char[] current = str.toCharArray();
-                if (current[k] != charOf(mostOccurrentence) || tmpArr[k] != 0) {
+                if (current[k] != charOf(mostOccurrence) || tmpArr[k] != 0) {
                     continue;
                 }
 
@@ -121,11 +121,11 @@ public class SecretKeyGuesser {
 
         for (int k = 15; k >= 0; k--) {
             char[] current = str.toCharArray();
-            if (current[k] != charOf(mostOccurrentence) || tmpArr[k] == 1) {
+            if (current[k] != charOf(mostOccurrence) || tmpArr[k] == 1) {
                 continue;
             }
 
-            current[k] = charOf(leastOccurrentence);
+            current[k] = charOf(leastOccurrence);
             int temp = key.guess(String.valueOf(current));
             if (temp > corrected) {
                 str = String.valueOf(current);
@@ -138,7 +138,7 @@ public class SecretKeyGuesser {
             } else if (temp < corrected) {
                 tmpArr[k] = 1;
             } else {
-                current[k] = charOf(secondOccurrentence);
+                current[k] = charOf(secondOccurrence);
                 str = String.valueOf(current);
                 corrected++;
             }
