@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class SecretKeyGuesser {
 
     // Generate new SecretKey object to access the guess() method
@@ -22,7 +24,6 @@ public class SecretKeyGuesser {
 
         for (int i = 0; i < 4; i++) {
             occurrence[i] = key.guess(basicKeys[i]);
-
             // Return true if the key is in 'basicKeys'
             if (occurrence[i] == 16) {
                 secretKey(basicKeys[i]);
@@ -90,12 +91,14 @@ public class SecretKeyGuesser {
         }
 
         int firstIndex = (corrected == 15) ? secondOccurrence : thirdOccurrence;
-        // new modified approach
+
         int[] tmpArr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+        // Find all of the position of the thirdOccurrence Keyword along with part of the mostOccurrence
         for (int j = 1; j <= occurrence[firstIndex]; j++) {
             for (int k = 15; k >= 0; k--) {
                 char[] current = str.toCharArray();
+                System.out.println(Arrays.toString(tmpArr));
                 if (current[k] != charOf(mostOccurrence) || tmpArr[k] != 0) {
                     continue;
                 }
@@ -119,6 +122,7 @@ public class SecretKeyGuesser {
             }
         }
 
+        // Plug in the position of the remaining two keys
         for (int k = 15; k >= 0; k--) {
             char[] current = str.toCharArray();
             if (current[k] != charOf(mostOccurrence) || tmpArr[k] == 1) {
