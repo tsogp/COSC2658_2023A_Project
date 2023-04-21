@@ -1,17 +1,16 @@
-package project;
-
 public class SecretKey {
     private String correctKey;
     private int counter;
 
     public SecretKey() {
         // for the real test, your program will not know this
-        correctKey = "IIIIIIIRMTTTTTTT";
+        correctKey = "RRRRRRRRRRRRRRRI";
         counter = 0;
     }
 
     public int guess(String guessedKey) {
         counter++;
+        System.out.println("Number of guesses: " + counter + " " + guessedKey);
         // validation
         if (guessedKey.length() != correctKey.length()) {
             return -1;
