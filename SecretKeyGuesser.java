@@ -90,19 +90,17 @@ public class SecretKeyGuesser {
             str = "T".repeat(16);
         }
 
-        int firstIndex = ((occurrence[leastOccurrence] == 0)&&(occurrence[thirdOccurrence] == 0)) ? secondOccurrence : thirdOccurrence;
         // new modified approach
         int[] tmpArr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-
-        for (int j = 1; j <= occurrence[firstIndex]; j++) {
+        for (int j = 1; j <= occurrence[secondOccurrence]; j++) {
             for (int k = 15; k >= 0; k--) {
                 char[] current = str.toCharArray();
                 if (current[k] != charOf(mostOccurrence) || tmpArr[k] != 0) {
                     continue;
                 }
 
-                current[k] = charOf(firstIndex);
+                current[k] = charOf(secondOccurrence);
                 int temp = key.guess(String.valueOf(current));
                 if (temp > corrected) {
                     str = String.valueOf(current);
@@ -142,12 +140,12 @@ public class SecretKeyGuesser {
             } else if (temp < corrected) {
                 tmpArr[k] = 1;
             } else {
-                current[k] = charOf(secondOccurrence);
+                current[k] = charOf(thirdOccurrence);
                 str = String.valueOf(current);
                 corrected++;
             }
         }
-
+       
         key.guess(str);
         secretKey(str);
     }
