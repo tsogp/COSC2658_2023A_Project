@@ -90,45 +90,57 @@ public class SecretKeyGuesser {
             str = "T".repeat(16);
         }
 
-        // new modified approach
+        //tmpArr storing the state of each index
         int[] tmpArr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        for (int j = 1; j <= occurrence[secondOccurrence]; j++) {
-            for (int k = 15; k >= 0; k--) {
-                char[] current = str.toCharArray();
-                if (current[k] != charOf(mostOccurrence) || tmpArr[k] != 0) {
-                    continue;
+        //to count the number of character of secondOccurrence
+        int cnt = occurrence[secondOccurrence];
+
+        //loop through 16 index
+        for (int k = 15; k >= 0; k--) {
+            char[] current = str.toCharArray();
+
+            if (cnt == 0) { //if there is no character left, break the loop
+                break;
+            }
+
+            current[k] = charOf(secondOccurrence); //replace the current index
+
+            int temp = key.guess(String.valueOf(current)); //call guess method
+
+            //evaluate the return value
+            if (temp > corrected) {
+                str = String.valueOf(current);
+                corrected = temp;
+                cnt --;
+
+                if (isFound()) {
+                    secretKey(str);
+                    return;
                 }
 
-                current[k] = charOf(secondOccurrence);
-                int temp = key.guess(String.valueOf(current));
-                if (temp > corrected) {
-                    str = String.valueOf(current);
-                    corrected = temp;
-
-                    if (isFound()) {
-                        secretKey(str);
-                        return;
-                    }
-                    break;
-                } else if (temp < corrected) {
-                    tmpArr[k] = 1;
-                } else {
-                    tmpArr[k] = 2;
-                }
+            } else if (temp < corrected) {
+                tmpArr[k] = 1;
+            } else {
+                tmpArr[k] = 2;
             }
         }
 
 
-
+        //finish the guessing period
+        //loop through 16 indices
         for (int k = 15; k >= 0; k--) {
             char[] current = str.toCharArray();
+            //check the state of index to skip or continue
             if (current[k] != charOf(mostOccurrence) || tmpArr[k] == 1) {
                 continue;
             }
 
-            current[k] = charOf(leastOccurrence);
-            int temp = key.guess(String.valueOf(current));
+            current[k] = charOf(leastOccurrence); //replacing
+
+            int temp = key.guess(String.valueOf(current));//call guess method
+
+            //evaluate the return value
             if (temp > corrected) {
                 str = String.valueOf(current);
                 corrected = temp;
@@ -145,6 +157,7 @@ public class SecretKeyGuesser {
                 corrected++;
             }
         }
+
        
         key.guess(str);
         secretKey(str);
