@@ -1,4 +1,4 @@
-package project;
+
 
 public class SecretKey {
   private String correctKey;

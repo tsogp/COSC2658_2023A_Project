@@ -1,4 +1,4 @@
-package project;
+
 
 public class SecretKeyGuesser {
    Generate new SecretKey object to access the guess() method
