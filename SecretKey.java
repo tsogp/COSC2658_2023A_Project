@@ -1,5 +1,3 @@
-
-
 public class SecretKey {
   private String correctKey;
   private int counter;

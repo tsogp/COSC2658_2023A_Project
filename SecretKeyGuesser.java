@@ -1,7 +1,5 @@
-
-
 public class SecretKeyGuesser {
-   Generate new SecretKey object to access the guess() method
+   // Generate new SecretKey object to access the guess() method
     // As we are not allowed to modify the SecretKey class's object -> we marked it as final
     private final SecretKey key;
     private String str;
