@@ -14,23 +14,9 @@ public class SecretKeyGuesser {
     // Constructor
     public SecretKeyGuesser() {
         this.key = new SecretKey();
-        this.str = "";
+        this.str = "R".repeat(16);
         this.occurrence = new int[4];
 
-        for (int i = 0; i < 4; i++) {
-            occurrence[i] = key.guess(String.valueOf(charOf(i)).repeat(16));
-
-            // Return true if the current key is correct
-            if (occurrence[i] == 16) {
-                secretKey(String.valueOf(charOf(i)).repeat(16));
-                return;
-            }
-
-            // Find the most occurrence
-            if (occurrence[i] > corrected) {
-                corrected = occurrence[i];
-            }
-        }
     }
 
     // Return true if the key is found
@@ -44,6 +30,21 @@ public class SecretKeyGuesser {
     }
 
     public void start() {
+
+        for (int i = 0; i < 4; i++) {
+            occurrence[i] = key.guess(String.valueOf(charOf(i)).repeat(16));
+
+            // Return true if the key is in 'basicKeys'
+            if (occurrence[i] == 16) {
+                secretKey(String.valueOf(charOf(i)).repeat(16));
+                return;
+            }
+
+            // Find the most occurrence
+            if (occurrence[i] > corrected) {
+                corrected = occurrence[i];
+            }
+        }
 
         // Find the key with largest, 2nd largest, least and 2nd least occurrence
         int mostOccurrence, secondOccurrence, thirdOccurrence, leastOccurrence;
@@ -91,21 +92,16 @@ public class SecretKeyGuesser {
 
         // to count the number of character of secondOccurrence
         int cnt = occurrence[secondOccurrence];
-
         // loop through 16 index
         for (int k = 15; k >= 0; k--) {
             char[] current = str.toCharArray();
 
-            // if there is no character left, break the loop
-            if (cnt == 0) {
+            if (cnt == 0) { // if there is no character left, break the loop
                 break;
             }
 
-            // replace the current index
-            current[k] = charOf(secondOccurrence);
-
-            // call guess method
-            int temp = key.guess(String.valueOf(current)); 
+            current[k] = charOf(secondOccurrence); // replace the current index
+            int temp = key.guess(String.valueOf(current)); // call guess method
 
             // evaluate the return value
             if (temp > corrected) {
@@ -129,17 +125,14 @@ public class SecretKeyGuesser {
         // loop through 16 indices
         for (int k = 15; k >= 0; k--) {
             char[] current = str.toCharArray();
-
             // check the state of index to skip or continue
             if (current[k] != charOf(mostOccurrence) || tmpArr[k] == 1) {
                 continue;
             }
 
-            // replacing
-            current[k] = charOf(leastOccurrence);
+            current[k] = charOf(leastOccurrence); // replacing
 
-            // call guess method
-            int temp = key.guess(String.valueOf(current));
+            int temp = key.guess(String.valueOf(current));// call guess method
 
             // evaluate the return value
             if (temp > corrected) {
@@ -173,5 +166,4 @@ public class SecretKeyGuesser {
         }
         return 'T';
     }
-
 }
